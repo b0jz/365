@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You 🌷</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Playfair+Display:ital@0;1&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0015;
+    overflow: hidden;
+    font-family: 'Dancing Script', cursive;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    gap: 20px;
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,200,255,0.2);
+    border-radius: 50px;
+    padding: 8px 24px;
+  }
+  nav a {
+    color: #f0c8f8;
+    text-decoration: none;
+    font-size: 15px;
+    font-family: 'Dancing Script', cursive;
+    transition: color 0.3s;
+  }
+  nav a:hover { color: #fff; }
+  nav a.active { color: #ff9ee8; font-weight: 700; }
+
+  /* STAR CANVAS */
+  #starCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+  }
+
+  /* BUTTERFLY CANVAS */
+  #butterflyCanvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* SCENE */
+  .scene {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  /* BOUQUET SVG WRAPPER */
+  .bouquet-wrap {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  /* ENVELOPE */
+  .envelope-container {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    animation: floatEnv 3s ease-in-out infinite;
+  }
+
+  @keyframes floatEnv {
+    0%,100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-8px); }
+  }
+
+  .envelope-msg {
+    background: linear-gradient(135deg, #fff9f0, #fff0fa);
+    border: 1px solid #e8b4d4;
+    border-radius: 4px;
+    padding: 12px 18px;
+    max-width: 220px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(200,100,200,0.3), 0 0 40px rgba(255,150,230,0.15);
+    position: relative;
+  }
+  .envelope-msg::before {
+    content: '';
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 40px solid transparent;
+    border-right: 40px solid transparent;
+    border-bottom: 14px solid #fff9f0;
+    filter: drop-shadow(0 -2px 2px rgba(200,100,200,0.2));
+  }
+  .envelope-msg::after {
+    content: '';
+    position: absolute;
+    top: -28px;
+    left: 0;
+    width: 100%;
+    height: 28px;
+    background: linear-gradient(135deg, #f5d0e8 50%, #f9e0f0 50%);
+    border: 1px solid #e8b4d4;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    clip-path: polygon(0 0, 50% 60%, 100% 0, 100% 100%, 0 100%);
+  }
+  .envelope-msg p {
+    font-family: 'Dancing Script', cursive;
+    font-size: 14px;
+    color: #7a3060;
+    line-height: 1.6;
+  }
+  .envelope-msg p em { font-style: italic; color: #c06090; }
+
+  /* GLOW */
+  .glow-ring {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 60px;
+    background: radial-gradient(ellipse, rgba(220,100,200,0.4) 0%, transparent 70%);
+    filter: blur(20px);
+    animation: pulseGlow 2.5s ease-in-out infinite;
+  }
+  @keyframes pulseGlow {
+    0%,100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="page1.html" class="active">🌷 Bouquet</a>
+  <a href="page2.html">🪐 Solar System</a>
+  <a href="page3.html">⛰️ Mountain</a>
+</nav>
+
+<canvas id="starCanvas"></canvas>
+<canvas id="butterflyCanvas"></canvas>
+
+<div class="scene">
+  <div class="bouquet-wrap">
+    <!-- MAIN BOUQUET SVG -->
+    <svg id="bouquet" width="420" height="560" viewBox="0 0 420 560" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Stem gradient -->
+        <linearGradient id="stemG" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#2d6e2d"/>
+          <stop offset="50%" stop-color="#4caf4c"/>
+          <stop offset="100%" stop-color="#2d6e2d"/>
+        </linearGradient>
+        <!-- Leaf gradient -->
+        <linearGradient id="leafG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#3a8c3a"/>
+          <stop offset="100%" stop-color="#1e5c1e"/>
+        </linearGradient>
+        <!-- Tulip petals various colors -->
+        <radialGradient id="tp1" cx="50%" cy="70%" r="60%">
+          <stop offset="0%" stop-color="#ff6eb4"/>
+          <stop offset="60%" stop-color="#e0409a"/>
+          <stop offset="100%" stop-color="#a01870"/>
+        </radialGradient>
+        <radialGradient id="tp2" cx="50%" cy="70%" r="60%">
+          <stop offset="0%" stop-color="#ff88cc"/>
+          <stop offset="60%" stop-color="#ee55aa"/>
+          <stop offset="100%" stop-color="#bb2280"/>
+        </radialGradient>
+        <radialGradient id="tp3" cx="50%" cy="70%" r="60%">
+          <stop offset="0%" stop-color="#ff99dd"/>
+          <stop offset="60%" stop-color="#dd44aa"/>
+          <stop offset="100%" stop-color="#991177"/>
+        </radialGradient>
+        <radialGradient id="tp4" cx="50%" cy="70%" r="60%">
+          <stop offset="0%" stop-color="#cc66ff"/>
+          <stop offset="60%" stop-color="#aa33dd"/>
+          <stop offset="100%" stop-color="#7700aa"/>
+        </radialGradient>
+        <radialGradient id="tp5" cx="50%" cy="70%" r="60%">
+          <stop offset="0%" stop-color="#ff77bb"/>
+          <stop offset="60%" stop-color="#ee3399"/>
+          <stop offset="100%" stop-color="#aa0066"/>
+        </radialGradient>
+        <radialGradient id="tp6" cx="50%" cy="70%" r="60%">
+          <stop offset="0%" stop-color="#dd88ff"/>
+          <stop offset="60%" stop-color="#bb44ee"/>
+          <stop offset="100%" stop-color="#7711bb"/>
+        </radialGradient>
+        <radialGradient id="tp7" cx="50%" cy="70%" r="60%">
+          <stop offset="0%" stop-color="#ffaad0"/>
+          <stop offset="60%" stop-color="#ee66bb"/>
+          <stop offset="100%" stop-color="#bb2288"/>
+        </radialGradient>
+        <!-- wrap gradient -->
+        <linearGradient id="wrapG" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#f8e0ff"/>
+          <stop offset="50%" stop-color="#e8b0f0"/>
+          <stop offset="100%" stop-color="#d080e0"/>
+        </linearGradient>
+        <!-- Wrap crinkle overlay -->
+        <linearGradient id="wrapShine" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.4)"/>
+          <stop offset="40%" stop-color="rgba(255,255,255,0.05)"/>
+          <stop offset="100%" stop-color="rgba(180,100,220,0.2)"/>
+        </linearGradient>
+        <filter id="petalGlow">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="softShadow">
+          <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="rgba(150,0,100,0.3)"/>
+        </filter>
+        <filter id="handGlow">
+          <feGaussianBlur stdDeviation="6" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- ===== HAND ===== -->
+      <g filter="url(#softShadow)">
+        <!-- Palm -->
+        <ellipse cx="210" cy="510" rx="50" ry="38" fill="#f0c8a0"/>
+        <!-- Thumb -->
+        <path d="M162,498 Q145,480 150,465 Q155,452 168,458 Q178,464 175,480 Z" fill="#f0c8a0"/>
+        <path d="M162,498 Q148,483 153,468 Q157,456 167,461" fill="none" stroke="#e0a880" stroke-width="1"/>
+        <!-- Fingers -->
+        <path d="M178,478 Q174,450 176,432 Q178,420 188,422 Q198,424 196,440 L194,478 Z" fill="#f2caa8"/>
+        <path d="M194,476 Q192,445 194,426 Q196,413 207,415 Q218,417 216,432 L214,476 Z" fill="#f2caa8"/>
+        <path d="M214,477 Q213,447 216,429 Q219,416 229,418 Q239,421 237,436 L234,477 Z" fill="#f2caa8"/>
+        <path d="M233,480 Q233,452 237,436 Q240,424 249,428 Q258,433 254,448 L250,480 Z" fill="#f2caa8"/>
+        <!-- Knuckle lines -->
+        <path d="M183,460 Q185,454 190,454" fill="none" stroke="#e0a880" stroke-width="0.8"/>
+        <path d="M199,458 Q201,452 206,452" fill="none" stroke="#e0a880" stroke-width="0.8"/>
+        <path d="M218,459 Q220,453 225,453" fill="none" stroke="#e0a880" stroke-width="0.8"/>
+        <path d="M237,462 Q239,456 244,457" fill="none" stroke="#e0a880" stroke-width="0.8"/>
+      </g>
+
+      <!-- ===== WRAPPING PAPER ===== -->
+      <path d="M155,490 L165,330 Q210,295 255,330 L265,490 Z" fill="url(#wrapG)" opacity="0.9"/>
+      <path d="M155,490 L165,330 Q210,295 255,330 L265,490 Z" fill="url(#wrapShine)"/>
+      <!-- Wrap fold lines -->
+      <path d="M165,330 Q185,350 195,490" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+      <path d="M255,330 Q235,350 225,490" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+      <path d="M162,420 Q210,400 258,420" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+      <path d="M158,460 Q210,445 262,460" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+      <!-- Wrap top edge frilly -->
+      <path d="M165,330 Q175,318 185,325 Q195,313 205,322 Q215,310 225,319 Q235,308 245,316 Q255,305 255,330" fill="#e8c0f8" stroke="#d090e8" stroke-width="1"/>
+      <!-- Ribbon bow -->
+      <path d="M195,370 Q190,350 200,345 Q210,340 215,360 Q220,340 230,345 Q240,350 235,370 Q222,360 210,365 Q198,360 195,370 Z" fill="#ff88cc" opacity="0.9"/>
+      <ellipse cx="210" cy="368" rx="8" ry="6" fill="#ff55aa"/>
+      <!-- Ribbon tails -->
+      <path d="M202,368 Q185,385 180,400" fill="none" stroke="#ff88cc" stroke-width="3" stroke-linecap="round"/>
+      <path d="M218,368 Q235,385 240,400" fill="none" stroke="#ff88cc" stroke-width="3" stroke-linecap="round"/>
+
+      <!-- ===== STEMS ===== -->
+      <!-- Back stems -->
+      <path d="M190,330 Q186,280 183,200" fill="none" stroke="url(#stemG)" stroke-width="5" stroke-linecap="round"/>
+      <path d="M230,330 Q234,280 237,200" fill="none" stroke="url(#stemG)" stroke-width="5" stroke-linecap="round"/>
+      <!-- Side stems -->
+      <path d="M165,340 Q155,290 148,215" fill="none" stroke="url(#stemG)" stroke-width="4" stroke-linecap="round"/>
+      <path d="M255,340 Q265,290 272,215" fill="none" stroke="url(#stemG)" stroke-width="4" stroke-linecap="round"/>
+      <!-- Far stems -->
+      <path d="M170,338 Q155,285 140,190" fill="none" stroke="url(#stemG)" stroke-width="3.5" stroke-linecap="round"/>
+      <path d="M250,338 Q265,285 280,190" fill="none" stroke="url(#stemG)" stroke-width="3.5" stroke-linecap="round"/>
+      <!-- Center stem -->
+      <path d="M210,330 Q210,275 210,180" fill="none" stroke="url(#stemG)" stroke-width="6" stroke-linecap="round"/>
+
+      <!-- ===== LEAVES ===== -->
+      <!-- Left leaves -->
+      <path d="M183,250 Q160,230 145,215 Q158,210 175,228 Z" fill="url(#leafG)"/>
+      <path d="M183,250 Q160,230 145,215" fill="none" stroke="#2a6c2a" stroke-width="0.8"/>
+      <path d="M165,290 Q140,275 128,260 Q142,255 160,272 Z" fill="url(#leafG)"/>
+      <path d="M155,268 Q130,250 118,233 Q132,228 150,245 Z" fill="url(#leafG)"/>
+      <!-- Right leaves -->
+      <path d="M237,250 Q260,230 275,215 Q262,210 245,228 Z" fill="url(#leafG)"/>
+      <path d="M237,250 Q260,230 275,215" fill="none" stroke="#2a6c2a" stroke-width="0.8"/>
+      <path d="M255,290 Q280,275 292,260 Q278,255 260,272 Z" fill="url(#leafG)"/>
+      <path d="M265,268 Q290,250 302,233 Q288,228 270,245 Z" fill="url(#leafG)"/>
+      <!-- Center leaves -->
+      <path d="M210,270 Q195,248 188,225 Q200,222 212,248 Z" fill="url(#leafG)"/>
+      <path d="M210,270 Q225,248 232,225 Q220,222 208,248 Z" fill="url(#leafG)"/>
+
+      <!-- ===== TULIPS ===== -->
+      <!-- Helper: each tulip is a set of petals -->
+
+      <!-- TULIP 1 - center back (magenta-pink) -->
+      <g transform="translate(210,180)" filter="url(#petalGlow)">
+        <path d="M0,-55 Q-22,-35 -20,-5 Q-10,12 0,15 Q10,12 20,-5 Q22,-35 0,-55 Z" fill="url(#tp1)"/>
+        <path d="M-20,-5 Q-40,-25 -35,5 Q-28,20 -10,18 Q-5,10 0,15 Z" fill="url(#tp2)"/>
+        <path d="M20,-5 Q40,-25 35,5 Q28,20 10,18 Q5,10 0,15 Z" fill="url(#tp2)"/>
+        <!-- Petal inner lines -->
+        <path d="M0,-50 Q-3,-20 -2,14" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+        <path d="M-18,-3 Q-10,5 0,15" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+        <path d="M18,-3 Q10,5 0,15" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+        <!-- Stamen -->
+        <ellipse cx="0" cy="14" rx="4" ry="3" fill="#ffdd00" opacity="0.8"/>
+      </g>
+
+      <!-- TULIP 2 - left back (purple) -->
+      <g transform="translate(148,215) rotate(-8)">
+        <path d="M0,-50 Q-20,-32 -18,-4 Q-8,11 0,14 Q8,11 18,-4 Q20,-32 0,-50 Z" fill="url(#tp4)"/>
+        <path d="M-18,-4 Q-36,-22 -32,4 Q-26,18 -8,16 Q-4,9 0,14 Z" fill="url(#tp6)"/>
+        <path d="M18,-4 Q36,-22 32,4 Q26,18 8,16 Q4,9 0,14 Z" fill="url(#tp6)"/>
+        <path d="M0,-46 Q-2,-18 -1,13" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+        <ellipse cx="0" cy="13" rx="3.5" ry="2.5" fill="#ffdd00" opacity="0.7"/>
+      </g>
+
+      <!-- TULIP 3 - right back (deep pink) -->
+      <g transform="translate(272,215) rotate(8)">
+        <path d="M0,-50 Q-20,-32 -18,-4 Q-8,11 0,14 Q8,11 18,-4 Q20,-32 0,-50 Z" fill="url(#tp5)"/>
+        <path d="M-18,-4 Q-36,-22 -32,4 Q-26,18 -8,16 Q-4,9 0,14 Z" fill="url(#tp7)"/>
+        <path d="M18,-4 Q36,-22 32,4 Q26,18 8,16 Q4,9 0,14 Z" fill="url(#tp7)"/>
+        <path d="M0,-46 Q-2,-18 -1,13" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+        <ellipse cx="0" cy="13" rx="3.5" ry="2.5" fill="#ffdd00" opacity="0.7"/>
+      </g>
+
+      <!-- TULIP 4 - left mid -->
+      <g transform="translate(140,190) rotate(-15)">
+        <path d="M0,-46 Q-18,-30 -16,-3 Q-7,10 0,12 Q7,10 16,-3 Q18,-30 0,-46 Z" fill="url(#tp3)"/>
+        <path d="M-16,-3 Q-33,-20 -29,3 Q-23,16 -7,14 Q-3,8 0,12 Z" fill="url(#tp1)"/>
+        <path d="M16,-3 Q33,-20 29,3 Q23,16 7,14 Q3,8 0,12 Z" fill="url(#tp1)"/>
+        <path d="M0,-42 Q-2,-16 -1,11" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+        <ellipse cx="0" cy="11" rx="3" ry="2.5" fill="#ffdd00" opacity="0.7"/>
+      </g>
+
+      <!-- TULIP 5 - right mid -->
+      <g transform="translate(280,190) rotate(15)">
+        <path d="M0,-46 Q-18,-30 -16,-3 Q-7,10 0,12 Q7,10 16,-3 Q18,-30 0,-46 Z" fill="url(#tp2)"/>
+        <path d="M-16,-3 Q-33,-20 -29,3 Q-23,16 -7,14 Q-3,8 0,12 Z" fill="url(#tp4)"/>
+        <path d="M16,-3 Q33,-20 29,3 Q23,16 7,14 Q3,8 0,12 Z" fill="url(#tp4)"/>
+        <path d="M0,-42 Q-2,-16 -1,11" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+        <ellipse cx="0" cy="11" rx="3" ry="2.5" fill="#ffdd00" opacity="0.7"/>
+      </g>
+
+      <!-- TULIP 6 - left front -->
+      <g transform="translate(183,200) rotate(-5)">
+        <path d="M0,-52 Q-21,-33 -19,-4 Q-9,12 0,15 Q9,12 19,-4 Q21,-33 0,-52 Z" fill="url(#tp5)"/>
+        <path d="M-19,-4 Q-38,-23 -33,5 Q-27,19 -9,17 Q-4,10 0,15 Z" fill="url(#tp3)"/>
+        <path d="M19,-4 Q38,-23 33,5 Q27,19 9,17 Q4,10 0,15 Z" fill="url(#tp3)"/>
+        <path d="M0,-48 Q-2,-19 -1,14" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+        <ellipse cx="0" cy="14" rx="3.5" ry="2.5" fill="#ffdd00" opacity="0.8"/>
+      </g>
+
+      <!-- TULIP 7 - right front -->
+      <g transform="translate(237,200) rotate(5)">
+        <path d="M0,-52 Q-21,-33 -19,-4 Q-9,12 0,15 Q9,12 19,-4 Q21,-33 0,-52 Z" fill="url(#tp6)"/>
+        <path d="M-19,-4 Q-38,-23 -33,5 Q-27,19 -9,17 Q-4,10 0,15 Z" fill="url(#tp2)"/>
+        <path d="M19,-4 Q38,-23 33,5 Q27,19 9,17 Q4,10 0,15 Z" fill="url(#tp2)"/>
+        <path d="M0,-48 Q-2,-19 -1,14" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
+        <ellipse cx="0" cy="14" rx="3.5" ry="2.5" fill="#ffdd00" opacity="0.8"/>
+      </g>
+    </svg>
+
+    <!-- ENVELOPE with message -->
+    <div class="envelope-container">
+      <div class="envelope-msg">
+        <p>i loved u each day of the 365 and more<br><em>(ur obsessed lover)</em></p>
+      </div>
+    </div>
+    <div class="glow-ring"></div>
+  </div>
+</div>
+
+<script>
+// ===== STARS (Night sky April 27, 2024) =====
+const starCanvas = document.getElementById('starCanvas');
+const sCtx = starCanvas.getContext('2d');
+
+starCanvas.width = window.innerWidth;
+starCanvas.height = window.innerHeight;
+
+const stars = [];
+const NUM_STARS = 280;
+
+// Constellation-like clusters for night sky feel
+for (let i = 0; i < NUM_STARS; i++) {
+  stars.push({
+    x: Math.random() * starCanvas.width,
+    y: Math.random() * starCanvas.height * 0.85,
+    r: Math.random() * 1.8 + 0.3,
+    baseAlpha: Math.random() * 0.6 + 0.4,
+    alpha: 0,
+    twinkleSpeed: Math.random() * 0.02 + 0.005,
+    twinkleOffset: Math.random() * Math.PI * 2,
+    color: ['#ffffff','#ffe8ff','#e8e8ff','#fff0e8','#ffeeff'][Math.floor(Math.random()*5)],
+    drift: (Math.random()-0.5)*0.08
+  });
+}
+
+// Shooting stars
+const shootingStars = [];
+
+function spawnShootingStar() {
+  if (Math.random() < 0.008) {
+    shootingStars.push({
+      x: Math.random() * starCanvas.width,
+      y: Math.random() * starCanvas.height * 0.4,
+      vx: (Math.random()*3+2)*( Math.random()<0.5?1:-1),
+      vy: Math.random()*2+1,
+      life: 1,
+      len: Math.random()*80+40
+    });
+  }
+}
+
+let sFrame = 0;
+function animateStars() {
+  sCtx.clearRect(0,0,starCanvas.width,starCanvas.height);
+
+  // Deep space gradient bg
+  const bg = sCtx.createLinearGradient(0,0,0,starCanvas.height);
+  bg.addColorStop(0,'#0a0018');
+  bg.addColorStop(0.5,'#0d0025');
+  bg.addColorStop(1,'#150035');
+  sCtx.fillStyle = bg;
+  sCtx.fillRect(0,0,starCanvas.width,starCanvas.height);
+
+  // Milky way band
+  const mw = sCtx.createLinearGradient(0,starCanvas.height*0.1,starCanvas.width,starCanvas.height*0.5);
+  mw.addColorStop(0,'rgba(180,100,220,0.03)');
+  mw.addColorStop(0.5,'rgba(220,150,255,0.06)');
+  mw.addColorStop(1,'rgba(180,100,220,0.03)');
+  sCtx.fillStyle = mw;
+  sCtx.beginPath();
+  sCtx.ellipse(starCanvas.width*0.5, starCanvas.height*0.35, starCanvas.width*0.6, starCanvas.height*0.25, -0.3, 0, Math.PI*2);
+  sCtx.fill();
+
+  sFrame++;
+  spawnShootingStar();
+
+  // Draw stars
+  for (const s of stars) {
+    s.x += s.drift * 0.1;
+    if (s.x < 0) s.x = starCanvas.width;
+    if (s.x > starCanvas.width) s.x = 0;
+
+    const twinkle = Math.sin(sFrame * s.twinkleSpeed + s.twinkleOffset);
+    s.alpha = s.baseAlpha + twinkle * 0.3;
+
+    sCtx.save();
+    sCtx.globalAlpha = Math.max(0, Math.min(1, s.alpha));
+    sCtx.fillStyle = s.color;
+    sCtx.shadowColor = s.color;
+    sCtx.shadowBlur = s.r * 4;
+    sCtx.beginPath();
+    sCtx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    sCtx.fill();
+    sCtx.restore();
+  }
+
+  // Shooting stars
+  for (let i = shootingStars.length-1; i >= 0; i--) {
+    const ss = shootingStars[i];
+    ss.x += ss.vx*2;
+    ss.y += ss.vy*2;
+    ss.life -= 0.02;
+
+    if (ss.life <= 0) { shootingStars.splice(i,1); continue; }
+
+    const grad = sCtx.createLinearGradient(ss.x, ss.y, ss.x - ss.vx*ss.len/3, ss.y - ss.vy*ss.len/3);
+    grad.addColorStop(0, `rgba(255,220,255,${ss.life})`);
+    grad.addColorStop(1, 'rgba(255,220,255,0)');
+    sCtx.strokeStyle = grad;
+    sCtx.lineWidth = 1.5;
+    sCtx.beginPath();
+    sCtx.moveTo(ss.x, ss.y);
+    sCtx.lineTo(ss.x - ss.vx*ss.len/3, ss.y - ss.vy*ss.len/3);
+    sCtx.stroke();
+  }
+
+  requestAnimationFrame(animateStars);
+}
+animateStars();
+
+// ===== BUTTERFLIES =====
+const bCanvas = document.getElementById('butterflyCanvas');
+const bCtx = bCanvas.getContext('2d');
+bCanvas.width = window.innerWidth;
+bCanvas.height = window.innerHeight;
+
+class Butterfly {
+  constructor() { this.reset(true); }
+  reset(init=false) {
+    this.x = Math.random() * bCanvas.width;
+    this.y = init ? Math.random()*bCanvas.height : bCanvas.height + 50;
+    this.vx = (Math.random()-0.5)*1.5;
+    this.vy = -(Math.random()*1.5+0.5);
+    this.size = Math.random()*18+12;
+    this.wingPhase = Math.random()*Math.PI*2;
+    this.wingSpeed = Math.random()*0.12+0.06;
+    this.color1 = [`#ff88cc`,`#cc66ff`,`#ff99dd`,`#dd88ff`,`#ffaae0`][Math.floor(Math.random()*5)];
+    this.color2 = [`#ff55aa`,`#aa33dd`,`#ff66bb`,`#bb44ee`,`#ff77cc`][Math.floor(Math.random()*5)];
+    this.alpha = 0.85;
+    this.wobbleA = (Math.random()-0.5)*0.5;
+    this.wobbleF = Math.random()*0.03+0.01;
+    this.age = 0;
+  }
+
+  drawWing(ctx, flip) {
+    const wf = Math.cos(this.wingPhase) * 0.8 + 0.2;
+    const w = this.size * wf * (flip?-1:1);
+    const h = this.size * 0.7;
+
+    ctx.save();
+    ctx.globalAlpha = this.alpha * 0.9;
+
+    // Upper wing
+    const grad1 = ctx.createRadialGradient(w*0.4, -h*0.2, 0, w*0.4, -h*0.2, this.size);
+    grad1.addColorStop(0, this.color1+'ee');
+    grad1.addColorStop(0.6, this.color1+'aa');
+    grad1.addColorStop(1, this.color2+'44');
+    ctx.fillStyle = grad1;
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.bezierCurveTo(w*0.2,-h*1.1, w*1.1,-h*0.9, w*0.9,-h*0.1);
+    ctx.bezierCurveTo(w*0.7,h*0.3, w*0.2,h*0.1, 0,0);
+    ctx.fill();
+    ctx.strokeStyle = this.color2+'66';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+
+    // Lower wing
+    const grad2 = ctx.createRadialGradient(w*0.3, h*0.4, 0, w*0.3, h*0.4, this.size*0.7);
+    grad2.addColorStop(0, this.color2+'cc');
+    grad2.addColorStop(1, this.color1+'33');
+    ctx.fillStyle = grad2;
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.bezierCurveTo(w*0.5,h*0.2, w*0.8,h*0.8, w*0.4,h*0.9);
+    ctx.bezierCurveTo(w*0.1,h*1.0, -w*0.1,h*0.6, 0,0);
+    ctx.fill();
+    ctx.stroke();
+
+    // Wing details
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 0.4;
+    ctx.beginPath();
+    ctx.moveTo(0,0); ctx.lineTo(w*0.5,-h*0.6);
+    ctx.moveTo(0,0); ctx.lineTo(w*0.7,-h*0.1);
+    ctx.moveTo(0,0); ctx.lineTo(w*0.3,h*0.5);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  update() {
+    this.age++;
+    this.wingPhase += this.wingSpeed;
+    this.x += this.vx + Math.sin(this.age*this.wobbleF)*this.wobbleA;
+    this.y += this.vy + Math.cos(this.age*this.wobbleF*0.7)*0.4;
+    if (this.y < -60 || this.x < -60 || this.x > bCanvas.width+60) this.reset();
+  }
+
+  draw(ctx) {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    // Antennae
+    ctx.strokeStyle = this.color1+'99';
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.quadraticCurveTo(-4,-this.size*0.7, -6,-this.size*1.1);
+    ctx.moveTo(0,0);
+    ctx.quadraticCurveTo(4,-this.size*0.7, 6,-this.size*1.1);
+    ctx.stroke();
+    // Antennae tips
+    ctx.fillStyle = this.color2;
+    ctx.beginPath(); ctx.arc(-6,-this.size*1.1,1.5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(6,-this.size*1.1,1.5,0,Math.PI*2); ctx.fill();
+    // Wings
+    this.drawWing(ctx, false);
+    this.drawWing(ctx, true);
+    // Body
+    ctx.fillStyle = '#3a1830';
+    ctx.beginPath();
+    ctx.ellipse(0,0,2,this.size*0.35,0,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+const butterflies = Array.from({length:12}, () => new Butterfly());
+
+function animateButterflies() {
+  bCtx.clearRect(0,0,bCanvas.width,bCanvas.height);
+  for (const b of butterflies) {
+    b.update();
+    b.draw(bCtx);
+  }
+  requestAnimationFrame(animateButterflies);
+}
+animateButterflies();
+
+window.addEventListener('resize', () => {
+  starCanvas.width = window.innerWidth;
+  starCanvas.height = window.innerHeight;
+  bCanvas.width = window.innerWidth;
+  bCanvas.height = window.innerHeight;
+});
+</script>
+</body>
+</html>
